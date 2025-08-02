@@ -19,6 +19,8 @@ interface Repository {
   updated_at: string
   topics: string[]
   private: boolean
+  languages_url: string // Add languages_url
+  languages_breakdown: Record<string, number> | null // Add languages_breakdown
 }
 
 async function getRepositories(): Promise<Repository[]> {
@@ -32,6 +34,10 @@ async function getRepositories(): Promise<Repository[]> {
 
   if (token) {
     headers["Authorization"] = `token ${token}`
+  } else {
+    console.warn(
+      "GITHUB_TOKEN environment variable is not set. API requests might be rate-limited. For better performance, consider adding a GITHUB_TOKEN to your Vercel project.",
+    )
   }
 
   try {
@@ -44,8 +50,28 @@ async function getRepositories(): Promise<Repository[]> {
       throw new Error(`GitHub API error: ${response.status}`)
     }
 
-    const repos = await response.json()
-    return repos.filter((repo: Repository) => !repo.private)
+    const repos: Repository[] = await response.json()
+    const publicRepos = repos.filter((repo: Repository) => !repo.private)
+
+    // Fetch detailed language breakdown for each public repository
+    const reposWithLanguages = await Promise.all(
+      publicRepos.map(async (repo) => {
+        try {
+          const langResponse = await fetch(repo.languages_url, { headers })
+          if (!langResponse.ok) {
+            console.warn(`Failed to fetch languages for ${repo.name}: ${langResponse.status}`)
+            return { ...repo, languages_breakdown: null }
+          }
+          const languages = await langResponse.json()
+          return { ...repo, languages_breakdown: languages }
+        } catch (langError) {
+          console.error(`Error fetching languages for ${repo.name}:`, langError)
+          return { ...repo, languages_breakdown: null }
+        }
+      }),
+    )
+
+    return reposWithLanguages
   } catch (error) {
     console.error("Error fetching repositories:", error)
     return []

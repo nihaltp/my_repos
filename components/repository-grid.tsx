@@ -18,6 +18,8 @@ interface Repository {
   updated_at: string
   topics: string[]
   private: boolean
+  languages_url: string
+  languages_breakdown: Record<string, number> | null
 }
 
 interface RepositoryGridProps {
@@ -43,9 +45,215 @@ function getLanguageColor(language: string | null): { bg: string; border: string
     HTML: { bg: "bg-orange-600", border: "border-orange-600" },
     CSS: { bg: "bg-blue-600", border: "border-blue-600" },
     Shell: { bg: "bg-gray-500", border: "border-gray-500" },
+    SCSS: { bg: "bg-pink-600", border: "border-pink-600" },
+    Vue: { bg: "bg-green-400", border: "border-green-400" },
+    Svelte: { bg: "bg-red-600", border: "border-red-600" },
+    "C#": { bg: "bg-green-700", border: "border-green-700" },
+    Perl: { bg: "bg-cyan-700", border: "border-cyan-700" },
+    R: { bg: "bg-blue-700", border: "border-blue-700" },
+    Scala: { bg: "bg-red-700", border: "border-red-700" },
+    Haskell: { bg: "bg-purple-700", border: "border-purple-700" },
+    Lua: { bg: "bg-indigo-700", border: "border-indigo-700" },
+    Erlang: { bg: "bg-pink-700", border: "border-pink-700" },
+    Elixir: { bg: "bg-purple-800", border: "border-purple-800" },
+    Clojure: { bg: "bg-red-800", border: "border-red-800" },
+    Groovy: { bg: "bg-blue-800", border: "border-blue-800" },
+    ObjectiveC: { bg: "bg-blue-900", border: "border-blue-900" },
+    Assembly: { bg: "bg-gray-700", border: "border-gray-700" },
+    VimL: { bg: "bg-green-800", border: "border-green-800" },
+    EmacsLisp: { bg: "bg-purple-900", border: "border-purple-900" },
+    Dockerfile: { bg: "bg-blue-950", border: "border-blue-950" },
+    Makefile: { bg: "bg-green-900", border: "border-green-900" },
+    "Jupyter Notebook": { bg: "bg-orange-700", border: "border-orange-700" },
+    "Objective-C++": { bg: "bg-indigo-900", border: "border-indigo-900" },
+    "PL/SQL": { bg: "bg-gray-300", border: "border-gray-300" },
+    PowerShell: { bg: "bg-blue-900", border: "border-blue-900" },
+    Prolog: { bg: "bg-red-900", border: "border-red-900" },
+    "Rich Text Format": { bg: "bg-blue-900", border: "border-blue-900" },
+    Roff: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    Scheme: { bg: "bg-blue-900", border: "border-blue-900" },
+    Smalltalk: { bg: "bg-green-900", border: "border-green-900" },
+    Solidity: { bg: "bg-orange-900", border: "border-orange-900" },
+    SQL: { bg: "bg-red-900", border: "border-red-900" },
+    "Standard ML": { bg: "bg-red-900", border: "border-red-900" },
+    Stata: { bg: "bg-blue-900", border: "border-blue-900" },
+    Stylus: { bg: "bg-red-900", border: "border-red-900" },
+    Tcl: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    TeX: { bg: "bg-green-900", border: "border-green-900" },
+    VHDL: { bg: "bg-indigo-900", border: "border-indigo-900" },
+    Verilog: { bg: "bg-purple-900", border: "border-purple-900" },
+    Vimscript: { bg: "bg-green-900", border: "border-green-900" },
+    WebAssembly: { bg: "bg-teal-900", border: "border-teal-900" },
+    XSLT: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    Zephir: { bg: "bg-cyan-900", border: "border-cyan-900" },
+    Zig: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    "Common Lisp": { bg: "bg-green-900", border: "border-green-900" },
+    "F#": { bg: "bg-purple-900", border: "border-purple-900" },
+    Fortran: { bg: "bg-indigo-900", border: "border-indigo-900" },
+    Julia: { bg: "bg-purple-900", border: "border-purple-900" },
+    VBA: { bg: "bg-purple-900", border: "border-purple-900" },
+    "Visual Basic .NET": { bg: "bg-purple-900", border: "border-purple-900" },
+    "ASP.NET": { bg: "bg-purple-900", border: "border-purple-900" },
+    CoffeeScript: { bg: "bg-blue-900", border: "border-blue-900" },
+    Crystal: { bg: "bg-gray-900", border: "border-gray-900" },
+    D: { bg: "bg-red-900", border: "border-red-900" },
+    Eiffel: { bg: "bg-orange-900", border: "border-orange-900" },
+    Fantom: { bg: "bg-gray-900", border: "border-gray-900" },
+    FreeMarker: { bg: "bg-blue-900", border: "border-blue-900" },
+    Gherkin: { bg: "bg-purple-900", border: "border-purple-900" },
+    GLSL: { bg: "bg-blue-900", border: "border-blue-900" },
+    Hack: { bg: "bg-gray-900", border: "border-gray-900" },
+    Haxe: { bg: "bg-orange-900", border: "border-orange-900" },
+    Hy: { bg: "bg-blue-900", border: "border-blue-900" },
+    Idris: { bg: "bg-red-900", border: "border-red-900" },
+    "Inform 7": { bg: "bg-orange-900", border: "border-orange-900" },
+    Io: { bg: "bg-blue-900", border: "border-blue-900" },
+    J: { bg: "bg-orange-900", border: "border-orange-900" },
+    JSON: { bg: "bg-gray-900", border: "border-gray-900" },
+    JSON5: { bg: "bg-gray-900", border: "border-gray-900" },
+    JSONiq: { bg: "bg-green-900", border: "border-green-900" },
+    JSX: { bg: "bg-cyan-900", border: "border-cyan-900" },
+    KRL: { bg: "bg-green-900", border: "border-green-900" },
+    LabVIEW: { bg: "bg-orange-900", border: "border-orange-900" },
+    Lasso: { bg: "bg-gray-900", border: "border-gray-900" },
+    Less: { bg: "bg-blue-900", border: "border-blue-900" },
+    Lex: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    LFE: { bg: "bg-green-900", border: "border-green-900" },
+    LiveScript: { bg: "bg-teal-900", border: "border-teal-900" },
+    Logtalk: { bg: "bg-blue-900", border: "border-blue-900" },
+    LookML: { bg: "bg-purple-900", border: "border-purple-900" },
+    M4: { bg: "bg-gray-900", border: "border-gray-900" },
+    Mathematica: { bg: "bg-red-900", border: "border-red-900" },
+    Matlab: { bg: "bg-orange-900", border: "border-orange-900" },
+    Max: { bg: "bg-gray-900", border: "border-gray-900" },
+    Mercury: { bg: "bg-red-900", border: "border-red-900" },
+    Meson: { bg: "bg-green-900", border: "border-green-900" },
+    Mirah: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    Modelica: { bg: "bg-red-900", border: "border-red-900" },
+    "Modula-2": { bg: "bg-gray-900", border: "border-gray-900" },
+    Monkey: { bg: "bg-red-900", border: "border-red-900" },
+    MoonScript: { bg: "bg-purple-900", border: "border-purple-900" },
+    MQL4: { bg: "bg-blue-900", border: "border-blue-900" },
+    MQL5: { bg: "bg-blue-900", border: "border-blue-900" },
+    NCL: { bg: "bg-green-900", border: "border-green-900" },
+    Nemerle: { bg: "bg-indigo-900", border: "border-indigo-900" },
+    NetLinx: { bg: "bg-blue-900", border: "border-blue-900" },
+    Nim: { bg: "bg-teal-900", border: "border-teal-900" },
+    Nix: { bg: "bg-purple-900", border: "border-purple-900" },
+    NSIS: { bg: "bg-gray-900", border: "border-gray-900" },
+    Nu: { bg: "bg-lime-900", border: "border-lime-900" },
+    Nunjucks: { bg: "bg-green-900", border: "border-green-900" },
+    OCaml: { bg: "bg-green-900", border: "border-green-900" },
+    Omegle: { bg: "bg-gray-900", border: "bg-gray-900" },
+    OpenCL: { bg: "bg-gray-900", border: "border-gray-900" },
+    "OpenEdge ABL": { bg: "bg-green-900", border: "border-green-900" },
+    OpenSCAD: { bg: "bg-blue-900", border: "border-blue-900" },
+    Org: { bg: "bg-green-900", border: "border-green-900" },
+    Ox: { bg: "bg-gray-900", border: "border-gray-900" },
+    Oxygene: { bg: "bg-blue-900", border: "border-blue-900" },
+    Oz: { bg: "bg-gray-900", border: "border-gray-900" },
+    P4: { bg: "bg-purple-900", border: "border-purple-900" },
+    Pan: { bg: "bg-red-900", border: "border-red-900" },
+    Papyrus: { bg: "bg-purple-900", border: "border-purple-900" },
+    Parrot: { bg: "bg-pink-900", border: "border-pink-900" },
+    Pascal: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    Pawn: { bg: "bg-purple-900", border: "border-purple-900" },
+    "Perl 6": { bg: "bg-gray-900", border: "border-gray-900" },
+    Pike: { bg: "bg-blue-900", border: "border-blue-900" },
+    PogoScript: { bg: "bg-pink-900", border: "border-pink-900" },
+    Pony: { bg: "bg-gray-900", border: "border-gray-900" },
+    PostCSS: { bg: "bg-orange-900", border: "border-orange-900" },
+    PostScript: { bg: "bg-red-900", border: "border-red-900" },
+    "POV-Ray SDL": { bg: "bg-blue-900", border: "border-blue-900" },
+    Processing: { bg: "bg-gray-900", border: "border-gray-900" },
+    "Propeller Spin": { bg: "bg-purple-900", border: "border-purple-900" },
+    "Protocol Buffer": { bg: "bg-gray-900", border: "border-gray-900" },
+    "Public Key Infrastructure": { bg: "bg-gray-900", border: "border-gray-900" },
+    Puppet: { bg: "bg-indigo-900", border: "border-indigo-900" },
+    PureBasic: { bg: "bg-blue-900", border: "border-blue-900" },
+    PureScript: { bg: "bg-gray-900", border: "border-gray-900" },
+    "Python console": { bg: "bg-blue-900", border: "border-blue-900" },
+    QML: { bg: "bg-green-900", border: "border-green-900" },
+    Racket: { bg: "bg-indigo-900", border: "border-indigo-900" },
+    Raku: { bg: "bg-gray-900", border: "border-gray-900" },
+    Rascal: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    Reason: { bg: "bg-red-900", border: "border-red-900" },
+    Rebol: { bg: "bg-blue-900", border: "border-blue-900" },
+    Red: { bg: "bg-red-900", border: "border-red-900" },
+    RenderScript: { bg: "bg-gray-900", border: "border-gray-900" },
+    Roff: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    RPL: { bg: "bg-gray-900", border: "border-gray-900" },
+    "RPM Spec": { bg: "bg-indigo-900", border: "border-indigo-900" },
+    RubyGems: { bg: "bg-red-900", border: "border-red-900" },
+    Sage: { bg: "bg-gray-900", border: "border-gray-900" },
+    SaltStack: { bg: "bg-gray-900", border: "border-gray-900" },
+    SAS: { bg: "bg-red-900", border: "border-red-900" },
+    Scheme: { bg: "bg-blue-900", border: "border-blue-900" },
+    Scilab: { bg: "bg-gray-900", border: "border-gray-900" },
+    Self: { bg: "bg-gray-900", border: "border-gray-900" },
+    ShaderLab: { bg: "bg-blue-900", border: "border-blue-900" },
+    Smarty: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    SourcePawn: { bg: "bg-gray-900", border: "border-gray-900" },
+    SQF: { bg: "bg-gray-900", border: "border-gray-900" },
+    Squirrel: { bg: "bg-red-900", border: "border-red-900" },
+    "Standard ML": { bg: "bg-red-900", border: "border-red-900" },
+    Stata: { bg: "bg-blue-900", border: "border-blue-900" },
+    Stylus: { bg: "bg-red-900", border: "border-red-900" },
+    SuperCollider: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    SystemVerilog: { bg: "bg-green-900", border: "border-green-900" },
+    Tcl: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    Terra: { bg: "bg-gray-900", border: "border-gray-900" },
+    Texinfo: { bg: "bg-gray-900", border: "border-gray-900" },
+    Thrift: { bg: "bg-gray-900", border: "border-gray-900" },
+    TLA: { bg: "bg-gray-900", border: "border-gray-900" },
+    TOML: { bg: "bg-gray-900", border: "border-gray-900" },
+    TSX: { bg: "bg-blue-900", border: "border-blue-900" },
+    Twig: { bg: "bg-purple-900", border: "border-purple-900" },
+    UnrealScript: { bg: "bg-red-900", border: "border-red-900" },
+    UrWeb: { bg: "bg-gray-900", border: "border-gray-900" },
+    V: { bg: "bg-blue-900", border: "border-blue-900" },
+    Vala: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    VCL: { bg: "bg-gray-900", border: "border-gray-900" },
+    Verilog: { bg: "bg-purple-900", border: "border-purple-900" },
+    VHDL: { bg: "bg-indigo-900", border: "border-indigo-900" },
+    "Vim script": { bg: "bg-green-900", border: "border-green-900" },
+    "Visual Basic": { bg: "bg-purple-900", border: "border-purple-900" },
+    Volt: { bg: "bg-gray-900", border: "border-gray-900" },
+    Vue: { bg: "bg-green-900", border: "border-green-900" },
+    WebAssembly: { bg: "bg-teal-900", border: "border-teal-900" },
+    WebIDL: { bg: "bg-gray-900", border: "border-gray-900" },
+    XAML: { bg: "bg-gray-900", border: "border-gray-900" },
+    XC: { bg: "bg-gray-900", border: "border-gray-900" },
+    XML: { bg: "bg-gray-900", border: "border-gray-900" },
+    Xojo: { bg: "bg-gray-900", border: "border-gray-900" },
+    XPages: { bg: "bg-gray-900", border: "border-gray-900" },
+    XProc: { bg: "bg-gray-900", border: "border-gray-900" },
+    XQuery: { bg: "bg-gray-900", border: "border-gray-900" },
+    XS: { bg: "bg-gray-900", border: "border-gray-900" },
+    XSLT: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    Yacc: { bg: "bg-green-900", border: "border-green-900" },
+    YAML: { bg: "bg-red-900", border: "border-red-900" },
+    YARA: { bg: "bg-red-900", border: "border-red-900" },
+    Zephir: { bg: "bg-cyan-900", border: "border-cyan-900" },
+    Zig: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    ZIL: { bg: "bg-gray-900", border: "border-gray-900" },
+    ZPL: { bg: "bg-gray-900", border: "border-gray-900" },
+    Zsh: { bg: "bg-gray-900", border: "border-gray-900" },
   }
 
-  return colors[language || ""] || { bg: "bg-gray-400", border: "border-gray-400" }
+  // Simple hash function to generate a color if not found
+  let hash = 0
+  const str = language || ""
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  let color = "#"
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xff
+    color += ("00" + value.toString(16)).substr(-2)
+  }
+
+  return colors[language || ""] || { bg: `bg-[${color}]`, border: `border-[${color}]` }
 }
 
 function formatDate(dateString: string): string {
@@ -75,8 +283,11 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
       aria-label={`${repositories.length} repositories`}
     >
       {repositories.map((repo) => {
-        const isHighlighted = selectedLanguage && repo.language === selectedLanguage
-        const isOtherLanguage = selectedLanguage && repo.language !== selectedLanguage
+        const isHighlighted =
+          selectedLanguage &&
+          ((repo.language && repo.language === selectedLanguage) ||
+            (repo.languages_breakdown && Object.keys(repo.languages_breakdown).includes(selectedLanguage)))
+        const isOtherLanguage = selectedLanguage && !isHighlighted // Simplified logic for other languages
 
         return (
           <Card
@@ -135,43 +346,60 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
                 {/* Topics */}
                 {repo.topics && repo.topics.length > 0 && (
                   <div className="flex flex-wrap gap-1" role="list" aria-label="Repository topics">
-                    {repo.topics.slice(0, 3).map((topic) => (
+                    {repo.topics.map((topic) => (
                       <Badge key={topic} variant="secondary" className="text-xs" role="listitem">
                         {topic}
                       </Badge>
                     ))}
-                    {repo.topics.length > 3 && (
-                      <Badge
-                        variant="outline"
-                        className="text-xs"
-                        role="listitem"
-                        aria-label={`${repo.topics.length - 3} more topics`}
-                      >
-                        +{repo.topics.length - 3}
-                      </Badge>
-                    )}
                   </div>
                 )}
+              </div>
 
-                {/* Language and Stats */}
+              {/* Language, Stats, and Updated date - Moved to bottom */}
+              <div className="mt-auto pt-4 space-y-4">
                 <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-                  <div className="flex items-center space-x-4">
-                    {repo.language && (
+                  <div className="flex flex-wrap gap-2" role="list" aria-label="Repository languages">
+                    {repo.languages_breakdown && Object.keys(repo.languages_breakdown).length > 0 ? (
+                      Object.keys(repo.languages_breakdown).map((lang) => (
+                        <div
+                          key={lang}
+                          className={`flex items-center space-x-1 text-xs ${
+                            selectedLanguage === lang
+                              ? "font-semibold text-blue-600 dark:text-blue-400"
+                              : "text-slate-600 dark:text-slate-400"
+                          }`}
+                          role="listitem"
+                          aria-label={`Language: ${lang}`}
+                        >
+                          <div
+                            className={`w-2.5 h-2.5 rounded-full ${getLanguageColor(lang).bg} ${
+                              selectedLanguage === lang ? "ring-1 ring-blue-500/50" : ""
+                            }`}
+                            aria-hidden="true"
+                          />
+                          <span>{lang}</span>
+                        </div>
+                      ))
+                    ) : repo.language ? (
                       <div
-                        className={`flex items-center space-x-1 ${
-                          isHighlighted ? "font-semibold text-blue-600 dark:text-blue-400" : ""
+                        className={`flex items-center space-x-1 text-xs ${
+                          selectedLanguage === repo.language
+                            ? "font-semibold text-blue-600 dark:text-blue-400"
+                            : "text-slate-600 dark:text-slate-400"
                         }`}
-                        role="img"
+                        role="listitem"
                         aria-label={`Primary language: ${repo.language}`}
                       >
                         <div
-                          className={`w-3 h-3 rounded-full ${getLanguageColor(repo.language).bg} ${
-                            isHighlighted ? "ring-2 ring-blue-500/50" : ""
+                          className={`w-2.5 h-2.5 rounded-full ${getLanguageColor(repo.language).bg} ${
+                            selectedLanguage === repo.language ? "ring-1 ring-blue-500/50" : ""
                           }`}
                           aria-hidden="true"
                         />
                         <span>{repo.language}</span>
                       </div>
+                    ) : (
+                      <span className="text-xs text-slate-500 dark:text-slate-500">No languages detected</span>
                     )}
                   </div>
 
@@ -190,7 +418,6 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
                     )}
                   </div>
                 </div>
-
                 {/* Updated date */}
                 <div className="flex items-center text-xs text-slate-500 dark:text-slate-500">
                   <Calendar className="h-3 w-3 mr-1" aria-hidden="true" />
@@ -200,8 +427,8 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
                 </div>
               </div>
 
-              {/* Actions - This will be pushed to the bottom */}
-              <div className="flex space-x-2 pt-4 mt-auto" role="group" aria-label="Repository actions">
+              {/* Actions */}
+              <div className="flex space-x-2 pt-4" role="group" aria-label="Repository actions">
                 <Button variant="outline" size="sm" className="flex-1 bg-transparent" asChild>
                   <a
                     href={repo.html_url}
