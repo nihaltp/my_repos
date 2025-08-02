@@ -4,6 +4,12 @@ import { LoadingSkeleton } from "@/components/loading-skeleton"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
+interface Contributor {
+  login: string
+  avatar_url: string
+  html_url: string
+}
+
 interface Repository {
   id: number
   name: string
@@ -19,8 +25,10 @@ interface Repository {
   updated_at: string
   topics: string[]
   private: boolean
-  languages_url: string // Add languages_url
-  languages_breakdown: Record<string, number> | null // Add languages_breakdown
+  languages_url: string
+  languages_breakdown: Record<string, number> | null
+  contributors_url: string
+  contributors: Contributor[] | null // Changed from contributor_count to contributors array
 }
 
 async function getRepositories(): Promise<Repository[]> {
@@ -53,25 +61,63 @@ async function getRepositories(): Promise<Repository[]> {
     const repos: Repository[] = await response.json()
     const publicRepos = repos.filter((repo: Repository) => !repo.private)
 
-    // Fetch detailed language breakdown for each public repository
-    const reposWithLanguages = await Promise.all(
+    // Fetch detailed language breakdown and contributors for each public repository
+    const reposWithDetails = await Promise.all(
       publicRepos.map(async (repo) => {
+        let languages_breakdown: Record<string, number> | null = null
+        let contributors: Contributor[] | null = null
+
         try {
           const langResponse = await fetch(repo.languages_url, { headers })
-          if (!langResponse.ok) {
+          if (langResponse.ok) {
+            languages_breakdown = await langResponse.json()
+          } else {
             console.warn(`Failed to fetch languages for ${repo.name}: ${langResponse.status}`)
-            return { ...repo, languages_breakdown: null }
           }
-          const languages = await langResponse.json()
-          return { ...repo, languages_breakdown: languages }
         } catch (langError) {
           console.error(`Error fetching languages for ${repo.name}:`, langError)
-          return { ...repo, languages_breakdown: null }
         }
+
+        try {
+          // Fetch up to 5 contributors to avoid excessive data and rendering
+          const contributorsResponse = await fetch(`${repo.contributors_url}?per_page=5`, { headers })
+          if (contributorsResponse.ok) {
+            const fetchedContributors: any[] = await contributorsResponse.json()
+            contributors = fetchedContributors.map((c) => ({
+              login: c.login,
+              avatar_url: c.avatar_url,
+              html_url: c.html_url,
+            }))
+          } else {
+            console.warn(`Failed to fetch contributors for ${repo.name}: ${contributorsResponse.status}`)
+          }
+        } catch (contributorError) {
+          console.error(`Error fetching contributors for ${repo.name}:`, contributorError)
+        }
+
+        return { ...repo, languages_breakdown, contributors }
       }),
     )
 
-    return reposWithLanguages
+    // Apply sorting criteria
+    reposWithDetails.sort((a, b) => {
+      // 1. Sort by stargazers_count (descending)
+      if (b.stargazers_count !== a.stargazers_count) {
+        return b.stargazers_count - a.stargazers_count
+      }
+      // 2. Then by forks_count (descending)
+      if (b.forks_count !== a.forks_count) {
+        return b.forks_count - a.forks_count
+      }
+      // 3. Then by watchers_count (descending)
+      if (b.watchers_count !== a.watchers_count) {
+        return b.watchers_count - a.watchers_count
+      }
+      // 4. Finally by updated_at (descending)
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    })
+
+    return reposWithDetails
   } catch (error) {
     console.error("Error fetching repositories:", error)
     return []

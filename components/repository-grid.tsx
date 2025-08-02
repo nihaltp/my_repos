@@ -1,7 +1,14 @@
-import { GitFork, Star, ExternalLink, Calendar } from "lucide-react"
+import { GitFork, Star, ExternalLink, Calendar, Eye, Users } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Import Avatar components
+
+interface Contributor {
+  login: string
+  avatar_url: string
+  html_url: string
+}
 
 interface Repository {
   id: number
@@ -20,6 +27,8 @@ interface Repository {
   private: boolean
   languages_url: string
   languages_breakdown: Record<string, number> | null
+  contributors_url: string
+  contributors: Contributor[] | null // Changed to contributors array
 }
 
 interface RepositoryGridProps {
@@ -75,127 +84,6 @@ function getLanguageColor(language: string | null): { bg: string; border: string
     Smalltalk: { bg: "bg-green-900", border: "border-green-900" },
     Solidity: { bg: "bg-orange-900", border: "border-orange-900" },
     SQL: { bg: "bg-red-900", border: "border-red-900" },
-    "Standard ML": { bg: "bg-red-900", border: "border-red-900" },
-    Stata: { bg: "bg-blue-900", border: "border-blue-900" },
-    Stylus: { bg: "bg-red-900", border: "border-red-900" },
-    Tcl: { bg: "bg-yellow-900", border: "border-yellow-900" },
-    TeX: { bg: "bg-green-900", border: "border-green-900" },
-    VHDL: { bg: "bg-indigo-900", border: "border-indigo-900" },
-    Verilog: { bg: "bg-purple-900", border: "border-purple-900" },
-    Vimscript: { bg: "bg-green-900", border: "border-green-900" },
-    WebAssembly: { bg: "bg-teal-900", border: "border-teal-900" },
-    XSLT: { bg: "bg-yellow-900", border: "border-yellow-900" },
-    Zephir: { bg: "bg-cyan-900", border: "border-cyan-900" },
-    Zig: { bg: "bg-yellow-900", border: "border-yellow-900" },
-    "Common Lisp": { bg: "bg-green-900", border: "border-green-900" },
-    "F#": { bg: "bg-purple-900", border: "border-purple-900" },
-    Fortran: { bg: "bg-indigo-900", border: "border-indigo-900" },
-    Julia: { bg: "bg-purple-900", border: "border-purple-900" },
-    VBA: { bg: "bg-purple-900", border: "border-purple-900" },
-    "Visual Basic .NET": { bg: "bg-purple-900", border: "border-purple-900" },
-    "ASP.NET": { bg: "bg-purple-900", border: "border-purple-900" },
-    CoffeeScript: { bg: "bg-blue-900", border: "border-blue-900" },
-    Crystal: { bg: "bg-gray-900", border: "border-gray-900" },
-    D: { bg: "bg-red-900", border: "border-red-900" },
-    Eiffel: { bg: "bg-orange-900", border: "border-orange-900" },
-    Fantom: { bg: "bg-gray-900", border: "border-gray-900" },
-    FreeMarker: { bg: "bg-blue-900", border: "border-blue-900" },
-    Gherkin: { bg: "bg-purple-900", border: "border-purple-900" },
-    GLSL: { bg: "bg-blue-900", border: "border-blue-900" },
-    Hack: { bg: "bg-gray-900", border: "border-gray-900" },
-    Haxe: { bg: "bg-orange-900", border: "border-orange-900" },
-    Hy: { bg: "bg-blue-900", border: "border-blue-900" },
-    Idris: { bg: "bg-red-900", border: "border-red-900" },
-    "Inform 7": { bg: "bg-orange-900", border: "border-orange-900" },
-    Io: { bg: "bg-blue-900", border: "border-blue-900" },
-    J: { bg: "bg-orange-900", border: "border-orange-900" },
-    JSON: { bg: "bg-gray-900", border: "border-gray-900" },
-    JSON5: { bg: "bg-gray-900", border: "border-gray-900" },
-    JSONiq: { bg: "bg-green-900", border: "border-green-900" },
-    JSX: { bg: "bg-cyan-900", border: "border-cyan-900" },
-    KRL: { bg: "bg-green-900", border: "border-green-900" },
-    LabVIEW: { bg: "bg-orange-900", border: "border-orange-900" },
-    Lasso: { bg: "bg-gray-900", border: "border-gray-900" },
-    Less: { bg: "bg-blue-900", border: "border-blue-900" },
-    Lex: { bg: "bg-yellow-900", border: "border-yellow-900" },
-    LFE: { bg: "bg-green-900", border: "border-green-900" },
-    LiveScript: { bg: "bg-teal-900", border: "border-teal-900" },
-    Logtalk: { bg: "bg-blue-900", border: "border-blue-900" },
-    LookML: { bg: "bg-purple-900", border: "border-purple-900" },
-    M4: { bg: "bg-gray-900", border: "border-gray-900" },
-    Mathematica: { bg: "bg-red-900", border: "border-red-900" },
-    Matlab: { bg: "bg-orange-900", border: "border-orange-900" },
-    Max: { bg: "bg-gray-900", border: "border-gray-900" },
-    Mercury: { bg: "bg-red-900", border: "border-red-900" },
-    Meson: { bg: "bg-green-900", border: "border-green-900" },
-    Mirah: { bg: "bg-yellow-900", border: "border-yellow-900" },
-    Modelica: { bg: "bg-red-900", border: "border-red-900" },
-    "Modula-2": { bg: "bg-gray-900", border: "border-gray-900" },
-    Monkey: { bg: "bg-red-900", border: "border-red-900" },
-    MoonScript: { bg: "bg-purple-900", border: "border-purple-900" },
-    MQL4: { bg: "bg-blue-900", border: "border-blue-900" },
-    MQL5: { bg: "bg-blue-900", border: "border-blue-900" },
-    NCL: { bg: "bg-green-900", border: "border-green-900" },
-    Nemerle: { bg: "bg-indigo-900", border: "border-indigo-900" },
-    NetLinx: { bg: "bg-blue-900", border: "border-blue-900" },
-    Nim: { bg: "bg-teal-900", border: "border-teal-900" },
-    Nix: { bg: "bg-purple-900", border: "border-purple-900" },
-    NSIS: { bg: "bg-gray-900", border: "border-gray-900" },
-    Nu: { bg: "bg-lime-900", border: "border-lime-900" },
-    Nunjucks: { bg: "bg-green-900", border: "border-green-900" },
-    OCaml: { bg: "bg-green-900", border: "border-green-900" },
-    Omegle: { bg: "bg-gray-900", border: "bg-gray-900" },
-    OpenCL: { bg: "bg-gray-900", border: "border-gray-900" },
-    "OpenEdge ABL": { bg: "bg-green-900", border: "border-green-900" },
-    OpenSCAD: { bg: "bg-blue-900", border: "border-blue-900" },
-    Org: { bg: "bg-green-900", border: "border-green-900" },
-    Ox: { bg: "bg-gray-900", border: "border-gray-900" },
-    Oxygene: { bg: "bg-blue-900", border: "border-blue-900" },
-    Oz: { bg: "bg-gray-900", border: "border-gray-900" },
-    P4: { bg: "bg-purple-900", border: "border-purple-900" },
-    Pan: { bg: "bg-red-900", border: "border-red-900" },
-    Papyrus: { bg: "bg-purple-900", border: "border-purple-900" },
-    Parrot: { bg: "bg-pink-900", border: "border-pink-900" },
-    Pascal: { bg: "bg-yellow-900", border: "border-yellow-900" },
-    Pawn: { bg: "bg-purple-900", border: "border-purple-900" },
-    "Perl 6": { bg: "bg-gray-900", border: "border-gray-900" },
-    Pike: { bg: "bg-blue-900", border: "border-blue-900" },
-    PogoScript: { bg: "bg-pink-900", border: "border-pink-900" },
-    Pony: { bg: "bg-gray-900", border: "border-gray-900" },
-    PostCSS: { bg: "bg-orange-900", border: "border-orange-900" },
-    PostScript: { bg: "bg-red-900", border: "border-red-900" },
-    "POV-Ray SDL": { bg: "bg-blue-900", border: "border-blue-900" },
-    Processing: { bg: "bg-gray-900", border: "border-gray-900" },
-    "Propeller Spin": { bg: "bg-purple-900", border: "border-purple-900" },
-    "Protocol Buffer": { bg: "bg-gray-900", border: "border-gray-900" },
-    "Public Key Infrastructure": { bg: "bg-gray-900", border: "border-gray-900" },
-    Puppet: { bg: "bg-indigo-900", border: "border-indigo-900" },
-    PureBasic: { bg: "bg-blue-900", border: "border-blue-900" },
-    PureScript: { bg: "bg-gray-900", border: "border-gray-900" },
-    "Python console": { bg: "bg-blue-900", border: "border-blue-900" },
-    QML: { bg: "bg-green-900", border: "border-green-900" },
-    Racket: { bg: "bg-indigo-900", border: "border-indigo-900" },
-    Raku: { bg: "bg-gray-900", border: "border-gray-900" },
-    Rascal: { bg: "bg-yellow-900", border: "border-yellow-900" },
-    Reason: { bg: "bg-red-900", border: "border-red-900" },
-    Rebol: { bg: "bg-blue-900", border: "border-blue-900" },
-    Red: { bg: "bg-red-900", border: "border-red-900" },
-    RenderScript: { bg: "bg-gray-900", border: "border-gray-900" },
-    Roff: { bg: "bg-yellow-900", border: "border-yellow-900" },
-    RPL: { bg: "bg-gray-900", border: "border-gray-900" },
-    "RPM Spec": { bg: "bg-indigo-900", border: "border-indigo-900" },
-    RubyGems: { bg: "bg-red-900", border: "border-red-900" },
-    Sage: { bg: "bg-gray-900", border: "border-gray-900" },
-    SaltStack: { bg: "bg-gray-900", border: "border-gray-900" },
-    SAS: { bg: "bg-red-900", border: "border-red-900" },
-    Scheme: { bg: "bg-blue-900", border: "border-blue-900" },
-    Scilab: { bg: "bg-gray-900", border: "border-gray-900" },
-    Self: { bg: "bg-gray-900", border: "border-gray-900" },
-    ShaderLab: { bg: "bg-blue-900", border: "border-blue-900" },
-    Smarty: { bg: "bg-yellow-900", border: "border-yellow-900" },
-    SourcePawn: { bg: "bg-gray-900", border: "border-gray-900" },
-    SQF: { bg: "bg-gray-900", border: "border-gray-900" },
-    Squirrel: { bg: "bg-red-900", border: "border-red-900" },
     "Standard ML": { bg: "bg-red-900", border: "border-red-900" },
     Stata: { bg: "bg-blue-900", border: "border-blue-900" },
     Stylus: { bg: "bg-red-900", border: "border-red-900" },
@@ -416,8 +304,46 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
                         <span aria-label={`${repo.forks_count} forks`}>{repo.forks_count}</span>
                       </div>
                     )}
+                    {repo.watchers_count > 0 && (
+                      <div className="flex items-center space-x-1" role="listitem">
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                        <span aria-label={`${repo.watchers_count} watchers`}>{repo.watchers_count}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                {/* Contributors */}
+                {repo.contributors && repo.contributors.length > 0 && (
+                  <div
+                    className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400"
+                    role="group"
+                    aria-label="Contributors"
+                  >
+                    <Users className="h-4 w-4" aria-hidden="true" />
+                    <span className="sr-only">Contributors:</span>
+                    <div className="flex -space-x-2 overflow-hidden">
+                      {repo.contributors.map((contributor) => (
+                        <a
+                          key={contributor.login}
+                          href={contributor.html_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="relative inline-block h-6 w-6 rounded-full ring-2 ring-background hover:z-10 focus:z-10"
+                          aria-label={`View ${contributor.login}'s GitHub profile`}
+                        >
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={contributor.avatar_url || "/placeholder.svg"} alt={contributor.login} />
+                            <AvatarFallback>{contributor.login.charAt(0).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                        </a>
+                      ))}
+                    </div>
+                    {/* Optional: Add a "+X more" if there are more contributors than displayed */}
+                    {/* This would require knowing the total count, which is not directly available from the limited fetch */}
+                  </div>
+                )}
+
                 {/* Updated date */}
                 <div className="flex items-center text-xs text-slate-500 dark:text-slate-500">
                   <Calendar className="h-3 w-3 mr-1" aria-hidden="true" />
