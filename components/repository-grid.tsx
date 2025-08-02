@@ -79,7 +79,7 @@ function getLanguageColor(language: string | null): { bg: string; border: string
     PowerShell: { bg: "bg-blue-900", border: "border-blue-900" },
     Prolog: { bg: "bg-red-900", border: "border-red-900" },
     "Rich Text Format": { bg: "bg-blue-900", border: "border-blue-900" },
-    Roff: { bg: "bg-yellow-900", border: "border-yellow-900" },
+    Roff: { bg: "bg-yellow-900", border: "bg-yellow-900" },
     Scheme: { bg: "bg-blue-900", border: "border-blue-900" },
     Smalltalk: { bg: "bg-green-900", border: "border-green-900" },
     Solidity: { bg: "bg-orange-900", border: "border-orange-900" },
@@ -181,8 +181,6 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
           <Card
             key={repo.id}
             className={`group transition-all duration-300 border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 flex flex-col h-full ${
-              repo.language ? `border-l-4 ${getLanguageColor(repo.language).border}` : ""
-            } ${
               isHighlighted
                 ? "ring-2 ring-blue-500/50 shadow-lg scale-[1.02] bg-blue-50/50 dark:bg-blue-900/10"
                 : isOtherLanguage
