@@ -24,8 +24,7 @@ export async function GET(request: NextRequest) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#f8fafc", // Mimics slate-50
-          backgroundImage: "linear-gradient(to bottom right, #f8fafc, #e2e8f0)", // Mimics from-slate-50 to-slate-100
+          backgroundColor: "#f8fafc", // Simplified to a solid light background
           color: "#0f172a", // Mimics slate-900
           fontFamily: "sans-serif",
           padding: "40px",
@@ -128,11 +127,10 @@ export async function GET(request: NextRequest) {
             </div>
           </div>
 
-          {/* Placeholder for Repository Grid */}
+          {/* Placeholder for Repository Grid (simplified to use flex for layout) */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
+              display: "flex", // Changed from grid to flex for simpler rendering
               gap: "24px",
               width: "100%",
             }}
@@ -143,6 +141,7 @@ export async function GET(request: NextRequest) {
                 style={{
                   display: "flex",
                   flexDirection: "column",
+                  flex: "1", // Allows items to grow and shrink
                   height: "200px",
                   backgroundColor: "#ffffff",
                   borderRadius: "12px",
@@ -165,12 +164,10 @@ export async function GET(request: NextRequest) {
         </div>
       </div>,
       {
-        // Image dimensions for Open Graph standard (1200x630 is common)
         width: 1200,
         height: 630,
         headers: {
           "Content-Type": "image/png",
-          // Cache the image for a long time as it's immutable for a given username
           "Cache-Control": "public, immutable, no-transform, max-age=31536000", // Cache for 1 year
         },
       },
