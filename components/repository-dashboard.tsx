@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { RepositoryGrid } from "@/components/repository-grid"
-import { LanguageStats } from "@/components/language-stats"
+import { useState, useMemo } from "react"
 import { Input } from "@/components/ui/input"
-import { SearchIcon } from "lucide-react"
+import { LanguageStats } from "@/components/language-stats"
+import { RepositoryGrid } from "@/components/repository-grid"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Contributor {
   login: string
@@ -38,52 +38,101 @@ interface RepositoryDashboardProps {
 }
 
 export function RepositoryDashboard({ repositories }: RepositoryDashboardProps) {
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]) // Changed to array
-  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedLanguage, setSelectedLanguage] = useState<string | "All">("All")
+  const [sortBy, setSortBy] = useState<"stars" | "forks" | "updated">("stars")
 
-  const handleLanguageSelect = (language: string) => {
-    setSelectedLanguages((prevSelected) => {
-      if (prevSelected.includes(language)) {
-        return prevSelected.filter((lang) => lang !== language) // Deselect
-      } else {
-        return [...prevSelected, language] // Select
+  const allLanguages = useMemo(() => {
+    const languages = new Set<string>()
+    repositories.forEach((repo) => {
+      if (repo.language) {
+        languages.add(repo.language)
+      }
+      if (repo.languages_breakdown) {
+        Object.keys(repo.languages_breakdown).forEach((lang) => languages.add(lang))
       }
     })
-  }
+    return Array.from(languages).sort()
+  }, [repositories])
 
-  const filteredRepositories = repositories.filter((repo) => {
-    const matchesSearch =
-      repo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (repo.description && repo.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredAndSortedRepositories = useMemo(() => {
+    const filtered = repositories.filter((repo) => {
+      const matchesSearch =
+        repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (repo.description && repo.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        repo.topics.some((topic) => topic.toLowerCase().includes(searchTerm.toLowerCase()))
 
-    const matchesLanguage =
-      selectedLanguages.length === 0 || // If no languages are selected, show all
-      (repo.language && selectedLanguages.includes(repo.language)) ||
-      (repo.languages_breakdown &&
-        Object.keys(repo.languages_breakdown).some((lang) => selectedLanguages.includes(lang)))
+      const matchesLanguage =
+        selectedLanguage === "All" ||
+        (repo.language && repo.language === selectedLanguage) ||
+        (repo.languages_breakdown && Object.keys(repo.languages_breakdown).includes(selectedLanguage))
 
-    return matchesSearch && matchesLanguage
-  })
+      return matchesSearch && matchesLanguage
+    })
+
+    filtered.sort((a, b) => {
+      if (sortBy === "stars") {
+        return b.stargazers_count - a.stargazers_count
+      }
+      if (sortBy === "forks") {
+        return b.forks_count - a.forks_count
+      }
+      if (sortBy === "updated") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      }
+      return 0
+    })
+
+    return filtered
+  }, [repositories, searchTerm, selectedLanguage, sortBy])
 
   return (
-    <>
-      <div className="relative mb-8">
-        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
+    <div className="grid gap-8">
+      <div className="flex flex-col md:flex-row gap-4">
         <Input
           type="text"
-          placeholder="Search repositories by name or description..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9 pr-4 py-2 rounded-md border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full"
+          placeholder="Search repositories..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1"
           aria-label="Search repositories"
         />
+        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+          <SelectTrigger className="w-full md:w-[180px]">
+            <SelectValue placeholder="Filter by language" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All Languages</SelectItem>
+            {allLanguages.map((lang) => (
+              <SelectItem key={lang} value={lang}>
+                {lang}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={(value: "stars" | "forks" | "updated") => setSortBy(value)}>
+          <SelectTrigger className="w-full md:w-[180px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="stars">Stars</SelectItem>
+            <SelectItem value="forks">Forks</SelectItem>
+            <SelectItem value="updated">Last Updated</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
       <LanguageStats
-        repositories={repositories}
-        selectedLanguages={selectedLanguages} // Pass array
-        onLanguageSelect={handleLanguageSelect} // Pass new handler
+        repositories={filteredAndSortedRepositories}
+        selectedLanguage={selectedLanguage}
+        onLanguageSelect={setSelectedLanguage}
       />
-      <RepositoryGrid repositories={filteredRepositories} selectedLanguages={selectedLanguages} />
-    </>
+
+      <RepositoryGrid repositories={filteredAndSortedRepositories} selectedLanguage={selectedLanguage} />
+
+      {filteredAndSortedRepositories.length === 0 && (
+        <p className="text-center text-slate-600 dark:text-slate-400">No repositories match your criteria.</p>
+      )}
+    </div>
   )
 }

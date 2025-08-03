@@ -28,24 +28,19 @@ interface Repository {
   languages_url: string
   languages_breakdown: Record<string, number> | null
   contributors_url: string
-  contributors: Contributor[] | null // Changed from contributor_count to contributors array
+  contributors: Contributor[] | null
 }
 
-async function getRepositories(): Promise<Repository[]> {
-  const username = process.env.GITHUB_USERNAME || "octocat"
-  const token = process.env.GITHUB_TOKEN
+async function getRepositories(username: string): Promise<Repository[]> {
+  if (!username) {
+    throw new Error("GitHub username is missing. Please provide it in the URL, e.g., /?username=your-github-username.")
+  }
 
+  // No Authorization header as per user request.
+  // Be aware of GitHub API rate limits for unauthenticated requests (60 requests per hour).
   const headers: HeadersInit = {
     Accept: "application/vnd.github.v3+json",
     "User-Agent": "Repository-Dashboard",
-  }
-
-  if (token) {
-    headers["Authorization"] = `token ${token}`
-  } else {
-    console.warn(
-      "GITHUB_TOKEN environment variable is not set. API requests might be rate-limited. For better performance, consider adding a GITHUB_TOKEN to your Vercel project.",
-    )
   }
 
   try {
@@ -55,13 +50,17 @@ async function getRepositories(): Promise<Repository[]> {
     })
 
     if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`)
+      if (response.status === 403) {
+        throw new Error(
+          "GitHub API rate limit exceeded. Please wait a while or try again later. Unauthenticated requests are limited to 60 per hour.",
+        )
+      }
+      throw new Error(`GitHub API error: ${response.status} - ${response.statusText}`)
     }
 
     const repos: Repository[] = await response.json()
     const publicRepos = repos.filter((repo: Repository) => !repo.private)
 
-    // Fetch detailed language breakdown and contributors for each public repository
     const reposWithDetails = await Promise.all(
       publicRepos.map(async (repo) => {
         let languages_breakdown: Record<string, number> | null = null
@@ -79,7 +78,6 @@ async function getRepositories(): Promise<Repository[]> {
         }
 
         try {
-          // Fetch up to 5 contributors to avoid excessive data and rendering
           const contributorsResponse = await fetch(`${repo.contributors_url}?per_page=5`, { headers })
           if (contributorsResponse.ok) {
             const fetchedContributors: any[] = await contributorsResponse.json()
@@ -99,28 +97,23 @@ async function getRepositories(): Promise<Repository[]> {
       }),
     )
 
-    // Apply sorting criteria
     reposWithDetails.sort((a, b) => {
-      // 1. Sort by stargazers_count (descending)
       if (b.stargazers_count !== a.stargazers_count) {
         return b.stargazers_count - a.stargazers_count
       }
-      // 2. Then by forks_count (descending)
       if (b.forks_count !== a.forks_count) {
         return b.forks_count - a.forks_count
       }
-      // 3. Then by watchers_count (descending)
       if (b.watchers_count !== a.watchers_count) {
         return b.watchers_count - a.watchers_count
       }
-      // 4. Finally by updated_at (descending)
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
     })
 
     return reposWithDetails
-  } catch (error) {
-    console.error("Error fetching repositories:", error)
-    return []
+  } catch (error: any) {
+    console.error("Error fetching repositories:", error.message)
+    throw error
   }
 }
 
@@ -149,14 +142,42 @@ function LanguageStatsLoading() {
   )
 }
 
-async function RepositoryDashboardWrapper() {
-  const repositories = await getRepositories()
+async function RepositoryDashboardWrapper({ searchParams }: { searchParams: { username?: string } }) {
+  let repositories: Repository[] = []
+  let error: string | null = null
+  const username = searchParams.username || ""
+
+  try {
+    repositories = await getRepositories(username)
+  } catch (e: any) {
+    error = e.message
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12" role="alert" aria-live="assertive">
+        <p className="text-red-600 dark:text-red-400 text-lg font-semibold mb-4">Error Loading Repositories:</p>
+        <p className="text-slate-700 dark:text-slate-300 text-base max-w-2xl mx-auto">{error}</p>
+        {!username && (
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-4">
+            Please provide a GitHub username in the URL, e.g., `/?username=your-github-username`.
+          </p>
+        )}
+        {username && error.includes("rate limit") && (
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-4">
+            You've hit the unauthenticated GitHub API rate limit. Please wait an hour or consider deploying with a
+            `GITHUB_TOKEN` for higher limits.
+          </p>
+        )}
+      </div>
+    )
+  }
 
   if (repositories.length === 0) {
     return (
       <div className="text-center py-12" role="status" aria-live="polite">
         <p className="text-slate-600 dark:text-slate-400 text-lg">
-          No repositories found. Make sure to set your GitHub username in the environment variables.
+          No public repositories found for the GitHub username "{username}".
         </p>
       </div>
     )
@@ -165,14 +186,20 @@ async function RepositoryDashboardWrapper() {
   return <RepositoryDashboard repositories={repositories} />
 }
 
-export default function Home() {
+export default function Home({ searchParams }: { searchParams: { username?: string } }) {
+  const username = searchParams.username || "your-github-username" // Default for display purposes
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">My Repositories</h1>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+            {username === "your-github-username" ? "My Repositories" : `${username}'s Repositories`}
+          </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            A collection of my open source projects and contributions
+            A collection of open source projects and contributions.
+            <br />
+            To view your own, add `?username=YOUR_GITHUB_USERNAME` to the URL.
           </p>
         </header>
 
@@ -184,10 +211,9 @@ export default function Home() {
             </>
           }
         >
-          <RepositoryDashboardWrapper />
+          <RepositoryDashboardWrapper searchParams={searchParams} />
         </Suspense>
 
-        {/* Skip to main content link for screen readers */}
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50"
