@@ -14,13 +14,9 @@ Any changes you make to your deployed app will be automatically pushed to this r
 
 Your project is live at:
 
-**[https://vercel.com/nihaltpnki-3730s-projects/v0-vercel-repository-grid](https://vercel.com/nihaltpnki-3730s-projects/v0-vercel-repository-grid)**
+**[https://nihaltp.vercel.com/](https://nihaltp.vercel.com/)**
 
 ## Build your app
-
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/ReXvlyoy6RJ](https://v0.dev/chat/projects/ReXvlyoy6RJ)**
 
 ## How It Works
 
