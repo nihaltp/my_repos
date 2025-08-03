@@ -14,7 +14,7 @@ Any changes you make to your deployed app will be automatically pushed to this r
 
 Your project is live at:
 
-**[https://nihaltp.vercel.com/](https://nihaltp.vercel.com/)**
+**[https://nihaltp.vercel.app/](https://nihaltp.vercel.app/)**
 
 ## Build your app
 
