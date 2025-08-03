@@ -8,7 +8,7 @@ interface Repository {
   name: string
   language: string | null
   private: boolean
-  languages_breakdown: Record<string, number> | null // Updated interface
+  languages_breakdown: Record<string, number> | null
 }
 
 interface LanguageStats {
@@ -21,8 +21,8 @@ interface LanguageStats {
 
 interface LanguageStatsProps {
   repositories: Repository[]
-  selectedLanguage: string | null
-  onLanguageSelect: (language: string | null) => void
+  selectedLanguages: string[] // Changed to array
+  onLanguageSelect: (language: string) => void // Changed handler signature
 }
 
 function getLanguageColor(language: string): string {
@@ -255,7 +255,6 @@ function getLanguageColor(language: string): string {
 function processLanguageStats(repositories: Repository[]): LanguageStats[] {
   const publicRepos = repositories.filter((repo) => !repo.private)
 
-  // Count languages and collect repository names
   const languageData: Record<string, { count: number; repositories: string[]; bytes: number }> = {}
   publicRepos.forEach((repo) => {
     if (repo.languages_breakdown) {
@@ -269,46 +268,33 @@ function processLanguageStats(repositories: Repository[]): LanguageStats[] {
         languageData[lang].bytes += bytes
       }
     } else if (repo.language) {
-      // Fallback to primary language if breakdown is not available
       if (!languageData[repo.language]) {
         languageData[repo.language] = { count: 0, repositories: [], bytes: 0 }
       }
       languageData[repo.language].count++
       languageData[repo.language].repositories.push(repo.name)
-      // Cannot determine bytes for fallback, so keep it 0 or estimate if needed
     }
   })
 
-  // Convert to array and calculate percentages based on bytes for more accurate distribution
   const totalUniqueRepos = publicRepos.length
   const languageStats: LanguageStats[] = Object.entries(languageData)
     .map(([language, data]) => ({
       language,
       count: data.count,
-      percentage: totalUniqueRepos > 0 ? (data.count / totalUniqueRepos) * 100 : 0, // Calculate percentage based on bytes
+      percentage: totalUniqueRepos > 0 ? (data.count / totalUniqueRepos) * 100 : 0,
       color: getLanguageColor(language),
       repositories: data.repositories.sort(),
     }))
-    .sort((a, b) => b.count - a.count) // Sort by percentage
+    .sort((a, b) => b.count - a.count)
 
   return languageStats
 }
 
-export function LanguageStats({ repositories, selectedLanguage, onLanguageSelect }: LanguageStatsProps) {
+export function LanguageStats({ repositories, selectedLanguages, onLanguageSelect }: LanguageStatsProps) {
   const languageStats = processLanguageStats(repositories)
 
   if (languageStats.length === 0) {
     return null
-  }
-
-  const maxPercentage = Math.max(...languageStats.map((stat) => stat.percentage))
-
-  const handleLanguageClick = (language: string) => {
-    if (selectedLanguage === language) {
-      onLanguageSelect(null) // Deselect if already selected
-    } else {
-      onLanguageSelect(language) // Select new language
-    }
   }
 
   return (
@@ -325,24 +311,23 @@ export function LanguageStats({ repositories, selectedLanguage, onLanguageSelect
               <div
                 key={stat.language}
                 className={`flex items-center justify-between group rounded-lg p-3 transition-all cursor-pointer ${
-                  selectedLanguage === stat.language
+                  selectedLanguages.includes(stat.language)
                     ? "bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500/50"
                     : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 }`}
-                onClick={() => handleLanguageClick(stat.language)}
+                onClick={() => onLanguageSelect(stat.language)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault()
-                    handleLanguageClick(stat.language)
+                    onLanguageSelect(stat.language)
                   }
                 }}
                 aria-label={`${stat.language}: ${stat.count} repositories. Click to ${
-                  selectedLanguage === stat.language ? "deselect" : "highlight"
-                } related repositories.`}
+                  selectedLanguages.includes(stat.language) ? "deselect" : "select"
+                } this language.`}
               >
-                {/* Language name and color indicator */}
                 <div className="flex items-center space-x-3 min-w-0 flex-1">
                   <div
                     className="w-4 h-4 rounded-full flex-shrink-0"
@@ -352,14 +337,13 @@ export function LanguageStats({ repositories, selectedLanguage, onLanguageSelect
                   <span className="font-medium text-slate-900 dark:text-slate-100 truncate">{stat.language}</span>
                 </div>
 
-                {/* Progress bar */}
                 <div className="flex items-center space-x-4 flex-1 max-w-md mx-4">
                   <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500 ease-out"
                       style={{
                         backgroundColor: stat.color,
-                        width: `${stat.percentage}%`, // Use percentage directly
+                        width: `${stat.percentage}%`,
                       }}
                       aria-label={`${stat.percentage.toFixed(1)}% of repositories`}
                     />
@@ -369,14 +353,13 @@ export function LanguageStats({ repositories, selectedLanguage, onLanguageSelect
                   </span>
                 </div>
 
-                {/* Repository count with tooltip */}
                 <div className="flex items-center space-x-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Badge
                         variant="secondary"
                         className={`font-mono text-sm transition-all ${
-                          selectedLanguage === stat.language ? "ring-2 ring-blue-500/50" : ""
+                          selectedLanguages.includes(stat.language) ? "ring-2 ring-blue-500/50" : ""
                         }`}
                         style={{
                           backgroundColor: `${stat.color}20`,
@@ -405,15 +388,14 @@ export function LanguageStats({ repositories, selectedLanguage, onLanguageSelect
             ))}
           </div>
 
-          {/* Summary */}
           <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
               <span>Total languages: {languageStats.length}</span>
               <span>Total repositories: {repositories.length}</span>
             </div>
-            {selectedLanguage && (
+            {selectedLanguages.length > 0 && (
               <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-                Highlighting {selectedLanguage} repositories below. Click again to clear selection.
+                Highlighting {selectedLanguages.length} selected language(s). Click a language again to deselect.
               </div>
             )}
           </div>

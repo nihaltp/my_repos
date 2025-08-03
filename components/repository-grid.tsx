@@ -2,7 +2,7 @@ import { GitFork, Star, ExternalLink, Calendar, Eye, Users } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar" // Import Avatar components
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface Contributor {
   login: string
@@ -28,12 +28,12 @@ interface Repository {
   languages_url: string
   languages_breakdown: Record<string, number> | null
   contributors_url: string
-  contributors: Contributor[] | null // Changed to contributors array
+  contributors: Contributor[] | null
 }
 
 interface RepositoryGridProps {
   repositories: Repository[]
-  selectedLanguage: string | null
+  selectedLanguages: string[] // Changed to array
 }
 
 function getLanguageColor(language: string | null): { bg: string; border: string } {
@@ -79,7 +79,7 @@ function getLanguageColor(language: string | null): { bg: string; border: string
     PowerShell: { bg: "bg-blue-900", border: "border-blue-900" },
     Prolog: { bg: "bg-red-900", border: "border-red-900" },
     "Rich Text Format": { bg: "bg-blue-900", border: "border-blue-900" },
-    Roff: { bg: "bg-yellow-900", border: "bg-yellow-900" },
+    Roff: { bg: "bg-yellow-900", border: "border-yellow-900" },
     Scheme: { bg: "bg-blue-900", border: "border-blue-900" },
     Smalltalk: { bg: "bg-green-900", border: "border-green-900" },
     Solidity: { bg: "bg-orange-900", border: "border-orange-900" },
@@ -153,7 +153,7 @@ function formatDate(dateString: string): string {
   })
 }
 
-export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGridProps) {
+export function RepositoryGrid({ repositories, selectedLanguages }: RepositoryGridProps) {
   if (repositories.length === 0) {
     return (
       <div className="text-center py-12" role="status" aria-live="polite">
@@ -171,11 +171,15 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
       aria-label={`${repositories.length} repositories`}
     >
       {repositories.map((repo) => {
+        const repoLanguages = repo.languages_breakdown
+          ? Object.keys(repo.languages_breakdown)
+          : repo.language
+            ? [repo.language]
+            : []
         const isHighlighted =
-          selectedLanguage &&
-          ((repo.language && repo.language === selectedLanguage) ||
-            (repo.languages_breakdown && Object.keys(repo.languages_breakdown).includes(selectedLanguage)))
-        const isOtherLanguage = selectedLanguage && !isHighlighted // Simplified logic for other languages
+          selectedLanguages.length === 0 || // If no languages are selected, all are highlighted
+          repoLanguages.some((lang) => selectedLanguages.includes(lang))
+        const isOtherLanguage = selectedLanguages.length > 0 && !isHighlighted
 
         return (
           <Card
@@ -250,7 +254,7 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
                         <div
                           key={lang}
                           className={`flex items-center space-x-1 text-xs ${
-                            selectedLanguage === lang
+                            selectedLanguages.includes(lang)
                               ? "font-semibold text-blue-600 dark:text-blue-400"
                               : "text-slate-600 dark:text-slate-400"
                           }`}
@@ -259,7 +263,7 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
                         >
                           <div
                             className={`w-2.5 h-2.5 rounded-full ${getLanguageColor(lang).bg} ${
-                              selectedLanguage === lang ? "ring-1 ring-blue-500/50" : ""
+                              selectedLanguages.includes(lang) ? "ring-1 ring-blue-500/50" : ""
                             }`}
                             aria-hidden="true"
                           />
@@ -269,7 +273,7 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
                     ) : repo.language ? (
                       <div
                         className={`flex items-center space-x-1 text-xs ${
-                          selectedLanguage === repo.language
+                          selectedLanguages.includes(repo.language)
                             ? "font-semibold text-blue-600 dark:text-blue-400"
                             : "text-slate-600 dark:text-slate-400"
                         }`}
@@ -278,7 +282,7 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
                       >
                         <div
                           className={`w-2.5 h-2.5 rounded-full ${getLanguageColor(repo.language).bg} ${
-                            selectedLanguage === repo.language ? "ring-1 ring-blue-500/50" : ""
+                            selectedLanguages.includes(repo.language) ? "ring-1 ring-blue-500/50" : ""
                           }`}
                           aria-hidden="true"
                         />
@@ -337,8 +341,6 @@ export function RepositoryGrid({ repositories, selectedLanguage }: RepositoryGri
                         </a>
                       ))}
                     </div>
-                    {/* Optional: Add a "+X more" if there are more contributors than displayed */}
-                    {/* This would require knowing the total count, which is not directly available from the limited fetch */}
                   </div>
                 )}
 
