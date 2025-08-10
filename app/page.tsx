@@ -185,9 +185,8 @@ async function RepositoryDashboardWrapper({ searchParams }: { searchParams: { us
   return <RepositoryDashboard repositories={repositories} />
 }
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ username?: string }> }) {
-  const resolvedSearchParams = await searchParams
-  const username = resolvedSearchParams.username
+export default async function Home({ searchParams }: { searchParams: { username?: string } }) {
+  const username = searchParams.username
 
   // If no username is provided, show the username input form
   if (!username) {
@@ -228,7 +227,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ u
             </>
           }
         >
-          <RepositoryDashboardWrapper searchParams={resolvedSearchParams} />
+          <RepositoryDashboardWrapper searchParams={searchParams} />
         </Suspense>
 
         <a
