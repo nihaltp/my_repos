@@ -3,6 +3,7 @@ import { RepositoryDashboard } from "@/components/repository-dashboard"
 import { LoadingSkeleton } from "@/components/loading-skeleton"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { UsernameInput } from "@/components/username-input"
 
 interface Contributor {
   login: string
@@ -54,6 +55,9 @@ async function getRepositories(username: string): Promise<Repository[]> {
         throw new Error(
           "GitHub API rate limit exceeded. Please wait a while or try again later. Unauthenticated requests are limited to 60 per hour.",
         )
+      }
+      if (response.status === 404) {
+        throw new Error(`GitHub user "${username}" not found. Please check the username and try again.`)
       }
       throw new Error(`GitHub API error: ${response.status} - ${response.statusText}`)
     }
@@ -158,12 +162,7 @@ async function RepositoryDashboardWrapper({ searchParams }: { searchParams: { us
       <div className="text-center py-12" role="alert" aria-live="assertive">
         <p className="text-red-600 dark:text-red-400 text-lg font-semibold mb-4">Error Loading Repositories:</p>
         <p className="text-slate-700 dark:text-slate-300 text-base max-w-2xl mx-auto">{error}</p>
-        {!username && (
-          <p className="text-slate-600 dark:text-slate-400 text-sm mt-4">
-            Please provide a GitHub username in the URL, e.g., `/?username=your-github-username`.
-          </p>
-        )}
-        {username && error.includes("rate limit") && (
+        {error.includes("rate limit") && (
           <p className="text-slate-600 dark:text-slate-400 text-sm mt-4">
             You've hit the unauthenticated GitHub API rate limit. Please wait an hour or consider deploying with a
             `GITHUB_TOKEN` for higher limits.
@@ -187,20 +186,37 @@ async function RepositoryDashboardWrapper({ searchParams }: { searchParams: { us
 }
 
 export default function Home({ searchParams }: { searchParams: { username?: string } }) {
-  const username = searchParams.username || "your-github-username" // Default for display purposes
+  const username = searchParams.username
+
+  // If no username is provided, show the username input form
+  if (!username) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        <div className="container mx-auto px-4 py-8">
+          <header className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">GitHub Repository Dashboard</h1>
+            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+              Enter a GitHub username to view their public repositories and language distribution.
+            </p>
+          </header>
+
+          <UsernameInput />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-            {username === "your-github-username" ? "My Repositories" : `${username}'s Repositories`}
-          </h1>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">{`${username}'s Repositories`}</h1>
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             A collection of open source projects and contributions.
-            <br />
-            To view your own, add `?username=YOUR_GITHUB_USERNAME` to the URL.
           </p>
+          <div className="mt-4">
+            <UsernameInput currentUsername={username} />
+          </div>
         </header>
 
         <Suspense

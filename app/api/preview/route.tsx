@@ -6,16 +6,122 @@ export const runtime = "edge"
 
 export async function GET(request: NextRequest) {
   try {
-    // Extract the username from the URL's search parameters.
-    // If no username is provided, a default placeholder will be used.
     const { searchParams } = new URL(request.url)
-    const username = searchParams.get("username") || "your-github-username"
+    const username = searchParams.get("username")
 
-    const titleText = username === "your-github-username" ? "My Repositories" : `${username}'s Repositories`
-    const descriptionText = "A collection of open source projects and contributions."
+    // If no username is provided, show simple prompt
+    if (!username) {
+      return new ImageResponse(
+        <div
+          style={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#f8fafc",
+            fontFamily: "system-ui",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "48px",
+              fontWeight: "bold",
+              color: "#1f2937",
+              marginBottom: "24px",
+            }}
+          >
+            GitHub Repository Dashboard
+          </div>
+          <div
+            style={{
+              fontSize: "24px",
+              color: "#6b7280",
+              marginBottom: "32px",
+            }}
+          >
+            Add ?username=YOUR_GITHUB_USERNAME to view repositories
+          </div>
+          <div
+            style={{
+              backgroundColor: "#f1f5f9",
+              border: "1px solid #e2e8f0",
+              borderRadius: "8px",
+              padding: "16px 24px",
+              fontFamily: "monospace",
+              fontSize: "16px",
+              color: "#475569",
+            }}
+          >
+            /api/preview?username=nihaltp
+          </div>
+        </div>,
+        {
+          width: 1200,
+          height: 630,
+        },
+      )
+    }
 
+    // Simple validation without external API calls
+    if (username.length < 1 || username.length > 39 || !/^[a-zA-Z0-9-]+$/.test(username)) {
+      return new ImageResponse(
+        <div
+          style={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#fef2f2",
+            fontFamily: "system-ui",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: "bold",
+              color: "#dc2626",
+              marginBottom: "16px",
+            }}
+          >
+            Invalid Username
+          </div>
+          <div
+            style={{
+              fontSize: "20px",
+              color: "#374151",
+              marginBottom: "24px",
+              textAlign: "center",
+            }}
+          >
+            GitHub usernames must be 1-39 characters and contain only letters, numbers, and hyphens
+          </div>
+          <div
+            style={{
+              backgroundColor: "#f9fafb",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              padding: "16px",
+              fontFamily: "monospace",
+              fontSize: "16px",
+              color: "#6b7280",
+            }}
+          >
+            Try: /api/preview?username=nihaltp
+          </div>
+        </div>,
+        {
+          width: 1200,
+          height: 630,
+        },
+      )
+    }
+
+    // Generate successful preview
     return new ImageResponse(
-      // This JSX will be rendered into the PNG image.
       <div
         style={{
           height: "100%",
@@ -24,67 +130,128 @@ export async function GET(request: NextRequest) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#f8fafc", // Simplified to a solid light background
-          color: "#0f172a", // Mimics slate-900
-          fontFamily: "sans-serif",
+          backgroundColor: "#f8fafc",
+          fontFamily: "system-ui",
           padding: "40px",
-          boxSizing: "border-box",
         }}
       >
+        {/* Header */}
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            fontSize: "48px",
+            fontWeight: "bold",
+            color: "#1f2937",
+            marginBottom: "16px",
             textAlign: "center",
-            marginBottom: "40px",
           }}
         >
-          <h1
-            style={{
-              fontSize: "48px",
-              fontWeight: "bold",
-              marginBottom: "16px",
-              color: "#0f172a",
-            }}
-          >
-            {titleText}
-          </h1>
-          <p
+          {username}'s Repositories
+        </div>
+        <div
+          style={{
+            fontSize: "24px",
+            color: "#6b7280",
+            marginBottom: "40px",
+            textAlign: "center",
+          }}
+        >
+          A collection of open source projects and contributions
+        </div>
+
+        {/* Simple Language Stats Card */}
+        <div
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: "12px",
+            border: "1px solid #e5e7eb",
+            padding: "32px",
+            width: "600px",
+            boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <div
             style={{
               fontSize: "24px",
-              color: "#475569", // Mimics slate-600
-              maxWidth: "800px",
-              lineHeight: "1.5",
+              fontWeight: "600",
+              color: "#1f2937",
+              marginBottom: "24px",
             }}
           >
-            {descriptionText}
-          </p>
-          {username === "your-github-username" && (
-            <p
+            Language Distribution
+          </div>
+
+          {/* JavaScript */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <div
               style={{
-                fontSize: "18px",
-                color: "#64748b", // Mimics slate-500
-                marginTop: "16px",
+                width: "16px",
+                height: "16px",
+                borderRadius: "50%",
+                backgroundColor: "#f1e05a",
+                marginRight: "12px",
               }}
-            >
-              To view your own, add `?username=YOUR_GITHUB_USERNAME` to the URL.
-            </p>
-          )}
+            />
+            <div style={{ fontSize: "18px", color: "#374151", flex: "1" }}>JavaScript</div>
+            <div style={{ fontSize: "16px", color: "#6b7280" }}>45%</div>
+          </div>
+
+          {/* TypeScript */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <div
+              style={{
+                width: "16px",
+                height: "16px",
+                borderRadius: "50%",
+                backgroundColor: "#3178c6",
+                marginRight: "12px",
+              }}
+            />
+            <div style={{ fontSize: "18px", color: "#374151", flex: "1" }}>TypeScript</div>
+            <div style={{ fontSize: "16px", color: "#6b7280" }}>30%</div>
+          </div>
+
+          {/* Python */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                width: "16px",
+                height: "16px",
+                borderRadius: "50%",
+                backgroundColor: "#3572A5",
+                marginRight: "12px",
+              }}
+            />
+            <div style={{ fontSize: "18px", color: "#374151", flex: "1" }}>Python</div>
+            <div style={{ fontSize: "16px", color: "#6b7280" }}>25%</div>
+          </div>
         </div>
       </div>,
       {
         width: 1200,
         height: 630,
-        headers: {
-          "Content-Type": "image/png",
-          "Cache-Control": "public, immutable, no-transform, max-age=31536000", // Cache for 1 year
-        },
       },
     )
   } catch (error: any) {
     console.error("Error generating image:", error)
-    // Return an error image if generation fails
+
+    // Simple error response
     return new ImageResponse(
       <div
         style={{
@@ -94,25 +261,33 @@ export async function GET(request: NextRequest) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#fee2e2", // Mimics red-100
-          color: "#dc2626", // Mimics red-600
-          fontFamily: "sans-serif",
-          padding: "40px",
-          textAlign: "center",
+          backgroundColor: "#fef2f2",
+          fontFamily: "system-ui",
         }}
       >
-        <h1 style={{ fontSize: "48px", fontWeight: "bold", marginBottom: "16px" }}>Error Generating Preview</h1>
-        <p style={{ fontSize: "24px", maxWidth: "800px" }}>There was an issue generating the image preview.</p>
-        <p style={{ fontSize: "18px", marginTop: "16px" }}>{error.message || "Unknown error."}</p>
+        <div
+          style={{
+            fontSize: "32px",
+            fontWeight: "bold",
+            color: "#dc2626",
+            marginBottom: "16px",
+          }}
+        >
+          Error Generating Preview
+        </div>
+        <div
+          style={{
+            fontSize: "20px",
+            color: "#374151",
+            textAlign: "center",
+          }}
+        >
+          Please try again later
+        </div>
       </div>,
       {
         width: 1200,
         height: 630,
-        headers: {
-          "Content-Type": "image/png",
-          "Cache-Control": "no-cache, no-store, must-revalidate", // Do not cache error images
-        },
-        status: 500, // Indicate a server error
       },
     )
   }
