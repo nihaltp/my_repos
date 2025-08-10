@@ -228,7 +228,7 @@ export default async function Home({ searchParams }: { searchParams: { username?
             </>
           }
         >
-          <RepositoryDashboardWrapper searchParams={searchParams} />
+          <RepositoryDashboardWrapper searchParams={Promise.resolve(searchParams)} />
         </Suspense>
 
         <a

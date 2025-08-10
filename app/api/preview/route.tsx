@@ -167,6 +167,8 @@ export async function GET(request: NextRequest) {
             padding: "32px",
             width: "600px",
             boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <div
