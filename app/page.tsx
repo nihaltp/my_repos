@@ -146,10 +146,11 @@ function LanguageStatsLoading() {
   )
 }
 
-async function RepositoryDashboardWrapper({ searchParams }: { searchParams: { username?: string } }) {
+async function RepositoryDashboardWrapper({ searchParams }: { searchParams: Promise<{ username?: string }> }) {
   let repositories: Repository[] = []
   let error: string | null = null
-  const username = searchParams.username || ""
+  const resolvedSearchParams = await searchParams
+  const username = resolvedSearchParams.username || ""
 
   try {
     repositories = await getRepositories(username)
