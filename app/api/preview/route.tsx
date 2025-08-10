@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
               fontWeight: "bold",
               color: "#1f2937",
               marginBottom: "24px",
+             display: "block",
             }}
           >
             GitHub Repository Dashboard
@@ -39,6 +40,7 @@ export async function GET(request: NextRequest) {
               fontSize: "24px",
               color: "#6b7280",
               marginBottom: "32px",
+             display: "block",
             }}
           >
             Add ?username=YOUR_GITHUB_USERNAME to view repositories
@@ -52,6 +54,7 @@ export async function GET(request: NextRequest) {
               fontFamily: "monospace",
               fontSize: "16px",
               color: "#475569",
+             display: "block",
             }}
           >
             /api/preview?username=nihaltp
@@ -85,6 +88,7 @@ export async function GET(request: NextRequest) {
               fontWeight: "bold",
               color: "#dc2626",
               marginBottom: "16px",
+             display: "block",
             }}
           >
             Invalid Username
@@ -95,6 +99,7 @@ export async function GET(request: NextRequest) {
               color: "#374151",
               marginBottom: "24px",
               textAlign: "center",
+             display: "block",
             }}
           >
             GitHub usernames must be 1-39 characters and contain only letters, numbers, and hyphens
@@ -108,6 +113,7 @@ export async function GET(request: NextRequest) {
               fontFamily: "monospace",
               fontSize: "16px",
               color: "#6b7280",
+             display: "block",
             }}
           >
             Try: /api/preview?username=nihaltp
@@ -143,6 +149,7 @@ export async function GET(request: NextRequest) {
             color: "#1f2937",
             marginBottom: "16px",
             textAlign: "center",
+           display: "block",
           }}
         >
           {username}'s Repositories
@@ -153,6 +160,7 @@ export async function GET(request: NextRequest) {
             color: "#6b7280",
             marginBottom: "40px",
             textAlign: "center",
+           display: "block",
           }}
         >
           A collection of open source projects and contributions
@@ -177,6 +185,7 @@ export async function GET(request: NextRequest) {
               fontWeight: "600",
               color: "#1f2937",
               marginBottom: "24px",
+             display: "block",
             }}
           >
             Language Distribution
@@ -273,6 +282,7 @@ export async function GET(request: NextRequest) {
             fontWeight: "bold",
             color: "#dc2626",
             marginBottom: "16px",
+           display: "block",
           }}
         >
           Error Generating Preview
@@ -282,6 +292,7 @@ export async function GET(request: NextRequest) {
             fontSize: "20px",
             color: "#374151",
             textAlign: "center",
+           display: "block",
           }}
         >
           Please try again later
