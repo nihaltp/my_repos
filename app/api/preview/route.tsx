@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
               fontWeight: "bold",
               color: "#1f2937",
               marginBottom: "24px",
-             display: "block",
+             display: "flex",
             }}
           >
             GitHub Repository Dashboard
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
               fontSize: "24px",
               color: "#6b7280",
               marginBottom: "32px",
-             display: "block",
+             display: "flex",
             }}
           >
             Add ?username=YOUR_GITHUB_USERNAME to view repositories
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
               fontFamily: "monospace",
               fontSize: "16px",
               color: "#475569",
-             display: "block",
+             display: "flex",
             }}
           >
             /api/preview?username=nihaltp
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
               fontWeight: "bold",
               color: "#dc2626",
               marginBottom: "16px",
-             display: "block",
+           display: "flex",
             }}
           >
             Invalid Username
@@ -98,8 +98,8 @@ export async function GET(request: NextRequest) {
               fontSize: "20px",
               color: "#374151",
               marginBottom: "24px",
-              textAlign: "center",
-             display: "block",
+           display: "flex",
+             display: "flex",
             }}
           >
             GitHub usernames must be 1-39 characters and contain only letters, numbers, and hyphens
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
               fontFamily: "monospace",
               fontSize: "16px",
               color: "#6b7280",
-             display: "block",
+             display: "flex",
             }}
           >
             Try: /api/preview?username=nihaltp
@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
             color: "#1f2937",
             marginBottom: "16px",
             textAlign: "center",
-           display: "block",
+           display: "flex",
           }}
         >
           {username}'s Repositories
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
             color: "#6b7280",
             marginBottom: "40px",
             textAlign: "center",
-           display: "block",
+           display: "flex",
           }}
         >
           A collection of open source projects and contributions
