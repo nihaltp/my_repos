@@ -40,15 +40,18 @@ jobs:
           version: 10
 
       # allow pnpm to regenerate the lockfile
+      # Explicitly update react and react-dom to ensure they are in sync
       - name: Install dependencies and update lockfile
-        run: pnpm install --no-frozen-lockfile
+        run: |
+          pnpm install --no-frozen-lockfile
+          pnpm update react react-dom
 
       - name: Commit lockfile changes
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add pnpm-lock.yaml
-          git diff --cached --quiet || git commit -m "ci: auto-update pnpm-lock.yaml"
+          git add pnpm-lock.yaml package.json
+          git diff --cached --quiet || git commit -m "ci: auto-update pnpm-lock.yaml and sync react versions"
       
       - name: Push changes
         run: git push
