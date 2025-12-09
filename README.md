@@ -1,3 +1,5 @@
+[![Website nihaltp.vercel.app](https://img.shields.io/website-up-down-green-red/https/nihaltp.vercel.app?style=for-the-badge)](https://nihaltp.vercel.app/)
+
 Project is live at:
 
 **[https://nihaltp.vercel.app/?={username}](https://nihaltp.vercel.app/?=nihaltp)**
