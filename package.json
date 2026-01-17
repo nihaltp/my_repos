@@ -52,7 +52,7 @@
     "react-day-picker": "latest",
     "react-dom": "^19.2.3",
     "react-hook-form": "latest",
-    "react-resizable-panels": "latest",
+    "react-resizable-panels": "4.0.15",
     "recharts": "latest",
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",
