@@ -10,7 +10,6 @@ pull_request_rules:
     actions:
       merge:
         method: squash
-      delete_head_branch: {}
 
   - name: auto-merge PRs by vercel bot
     conditions:
@@ -23,4 +22,3 @@ pull_request_rules:
     actions:
       merge:
         method: squash
-      delete_head_branch: {}
